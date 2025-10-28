@@ -1,31 +1,64 @@
-# modules/gemini_pipeline.py
+"""
+gemini_pipeline.py
+-------------------
+Complete pipeline:
+- Takes raw transcript (list of dicts)
+- Builds readable chunks using context_manager
+- Sends to Gemini via gemini_handler
+- Returns structured JSON (answer + key_points)
+"""
 
+import json
+from modules.context_manager import build_context
 from modules.gemini_handler import ask_gemini
-from modules.tts_engine import text_to_speech
 
-def process_watched_transcript(context_text, user_question=None, video_id=None, tts=True):
+
+def process_watched_transcript(transcript_data, user_question=None):
     """
-    Handles question answering, summarization, and key points extraction in one wrapper.
+    Processes transcript data + user question through Gemini.
+    
+    Args:
+        transcript_data (list): List of transcript dicts [{text, starttime, endtime}, ...]
+        user_question (str): Optional question asked by the user.
 
-    context_text: str - transcript text up to watched portion
-    user_question: str - optional user question
-    video_id: str - used for saving TTS audio
-    tts: bool - whether to generate audio for the answer
+    Returns:
+        dict: {
+            "answer": "..."
+            }
     """
-    result = {}
+    chunks = build_context(transcript_data)
+    if not chunks:
+        return {"answer": "Sorry please try again later."}
 
-    # 1️⃣ Answer user question
-    if user_question:
-        result['answer'] = ask_gemini(user_question, context_text)
-        if tts and video_id:
-            audio_file = f"data/audio_responses/{video_id}_answer.mp3"
-            text_to_speech(result['answer'], filename=audio_file)
-            result['audio_file'] = audio_file
+    context_text = "\n\n".join(chunks)
+    if not user_question:
+        user_question = "Summarize the main concepts covered so far."
+    gemini_response = ask_gemini(user_question, context_text)
 
-    # 2️⃣ Summary of watched portion
-    result['summary'] = ask_gemini("Summarize the following lecture content.", context_text)
-
-    # 3️⃣ Key points
-    result['key_points'] = ask_gemini("Extract key points as bullet points from the lecture.", context_text)
+    try:
+        parsed = json.loads(gemini_response)
+        if isinstance(parsed, dict):
+            result = {
+                "answer": parsed.get("answer", "")
+            }
+        else:
+            result = {"answer": gemini_response}
+    except json.JSONDecodeError:
+        lines = gemini_response.split("\n")
+        result = {
+            "answer": gemini_response
+        }
 
     return result
+
+
+if __name__ == "__main__":
+    from read_transcript_module import load_transcript_from_txt
+
+    transcript = load_transcript_from_txt("transcript.json")
+
+    question = "Explain the main concepts discussed so far."
+    output = process_watched_transcript(transcript, user_question=question)
+
+    print("\n--- Gemini Output ---\n")
+    print(json.dumps(output, indent=4))
