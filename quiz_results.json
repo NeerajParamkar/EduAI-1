@@ -1,0 +1,14 @@
+[
+    {
+        "question": "What principle does a stack use?",
+        "user_answer": "lifo",
+        "correct_answer": "LIFO principle.",
+        "is_correct": false
+    },
+    {
+        "question": "How can a stack be implemented?",
+        "user_answer": "A stack uses the LIFO (Last In, First Out) principle.",
+        "correct_answer": "A stack can be implemented using arrays or linked lists.",
+        "is_correct": false
+    }
+]
