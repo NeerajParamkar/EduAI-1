@@ -1,14 +1,13 @@
 import React from 'react';
 import { Brain } from 'lucide-react';
-import { CARD_BG, PRIMARY_COLOR } from '../utils/constants';
 
 /** Header Component (Used on Dashboard and Video/Chat) */
 const Header = ({ handleLogout }) => (
-    <header className={`sticky top-0 z-10 w-full p-4 border-b border-slate-700/50 ${CARD_BG} shadow-xl`}>
+    <header className={`sticky top-0 z-10 w-full p-4 border-b border-slate-700/50 bg-slate-800/70 backdrop-blur-md shadow-xl`}>
         <div className="flex justify-between items-center max-w-7xl mx-auto">
             <div className={`text-2xl font-bold tracking-tight text-white flex items-center`}>
-                <Brain className={`w-7 h-7 mr-2 text-${PRIMARY_COLOR}-400`} />
-                Edu<span className={`text-${PRIMARY_COLOR}-400`}>AI</span>
+                <Brain className={`w-7 h-7 mr-2 text-indigo-400`} />
+                Edu<span className={`text-indigo-400`}>AI</span>
             </div>
             <div className="relative">
                 <button

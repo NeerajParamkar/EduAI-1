@@ -1,6 +1,5 @@
 import React from 'react';
 import { Video } from 'lucide-react';
-import { CARD_BG, PRIMARY_COLOR } from '../utils/constants';
 
 /** Video Player Component with responsive 16:9 aspect ratio */
 const VideoPlayer = ({ videoUrl }) => {
@@ -23,9 +22,9 @@ const VideoPlayer = ({ videoUrl }) => {
     const iframeSrc = `https://www.youtube.com/embed/${embedId}?autoplay=0&controls=1&modestbranding=1&rel=0`;
 
     return (
-        <div className={`${CARD_BG} p-4 rounded-2xl shadow-xl border border-slate-700 mb-6 flex-1`}>
+        <div className={`bg-slate-800/70 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-700 flex-1`}>
             <h2 className="text-xl font-bold text-white mb-3 flex items-center">
-                <Video className={`w-6 h-6 mr-2 text-${PRIMARY_COLOR}-400`} /> Video Player
+                <Video className={`w-6 h-6 mr-2 text-indigo-400`} /> Video Player
             </h2>
             {/* Responsive 16:9 Aspect Ratio Container */}
             <div className="relative w-full overflow-hidden rounded-xl" style={{ paddingTop: '56.25%' }}>

@@ -3,7 +3,6 @@ import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import VideoChatPage from './pages/VideoChatPage';
 import Header from './components/Header';
-import { BACKGROUND_COLOR } from './utils/constants';
 
 /** Main App Component */
 const App = () => {
@@ -76,7 +75,7 @@ const App = () => {
     };
 
     return (
-        <div className={`min-h-screen ${BACKGROUND_COLOR} font-sans`}>
+        <div className={`min-h-screen bg-slate-900 font-sans`}>
             {/* Custom Scrollbar Styling */}
             <style>{`
             body {

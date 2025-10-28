@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, MessageSquare, Send } from 'lucide-react';
-import { CARD_BG, TEXT_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from '../utils/constants';
 
 /** AI Chatbox Component */
 const ChatBox = ({ videoUrl }) => {
@@ -52,10 +51,11 @@ const ChatBox = ({ videoUrl }) => {
     }, [messages]);
 
     return (
-        <div className={`lg:col-span-1 flex flex-col h-[60vh] lg:h-auto ${CARD_BG} p-4 rounded-2xl shadow-xl border border-slate-700`}>
+        <div className={`lg:col-span-1 flex flex-col bg-slate-800/70 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-slate-700 h-[80vh] overflow-y-auto`}>
+
             <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-3">
                 <h3 className="text-xl font-bold text-white flex items-center">
-                    <Bot className={`w-6 h-6 mr-2 text-${SECONDARY_COLOR}-400`} /> Ask Your AI Tutor
+                    <Bot className={`w-6 h-6 mr-2 text-emerald-400`} /> Ask Your AI Tutor
                 </h3>
                 <MessageSquare className="w-5 h-5 text-slate-400" />
             </div>
@@ -68,7 +68,7 @@ const ChatBox = ({ videoUrl }) => {
                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-[80%] p-3 rounded-xl shadow-md transition-all duration-300 ${msg.role === 'user' ? `bg-${PRIMARY_COLOR}-600 text-white rounded-br-none` : 'bg-slate-700 text-slate-200 rounded-tl-none'}`}>
+                            className={`max-w-[80%] p-3 rounded-xl shadow-md transition-all duration-300 ${msg.role === 'user' ? `bg-indigo-600 text-white rounded-br-none` : 'bg-slate-700 text-slate-200 rounded-tl-none'}`}>
                             <p className="text-sm"> {msg.text} </p>
                         </div>
                     </div>
@@ -93,11 +93,11 @@ const ChatBox = ({ videoUrl }) => {
                         if (e.key === 'Enter') handleSendMessage();
                     }}
                     disabled={isThinking}
-                    className={`flex-1 p-3 rounded-l-xl bg-slate-800 border border-slate-700 focus:ring-1 focus:ring-${PRIMARY_COLOR}-500 outline-none ${TEXT_COLOR}`} />
+                    className={`flex-1 p-3 rounded-l-xl bg-slate-800 border border-slate-700 focus:ring-1 focus:ring-indigo-500 outline-none text-slate-100`} />
                 <button
                     onClick={handleSendMessage}
                     disabled={!inputMessage.trim() || isThinking}
-                    className={` p-3 rounded-r-xl transition-all duration-200 bg-${PRIMARY_COLOR}-600 hover:bg-${PRIMARY_COLOR}-500 text-white disabled:opacity-50 disabled:cursor-not-allowed `}
+                    className={` p-3 rounded-r-xl transition-all duration-200 bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:cursor-not-allowed `}
                     title="Send Message">
                     <Send className="w-5 h-5" />
                 </button>
