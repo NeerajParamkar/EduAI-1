@@ -5,7 +5,7 @@ test_chunks = [
 ]
 
 # Example question
-user_question = "Explain what a queue is and its principle."
+user_question = "give summary"
 
 # Call main_ai function
 from main_ai import main
