@@ -1,17 +1,30 @@
 import json
-from modules.gemini_pipeline import process_watched_transcript
+import os
 
-def load_transcript_from_txt(file_path):
-    """Reads transcript JSON-like data from a text file and returns as a list."""
+def load_transcript_from_txt(file_path: str):
+    """
+    Reads a JSON or text-based transcript file and returns it as a list of dictionaries.
+    The file is assumed to already contain only the watched portion of the video."""
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Transcript file not found: {file_path}")
+
     with open(file_path, "r", encoding="utf-8") as f:
-        data = f.read()
-        # Convert the text to a valid JSON list if necessary
-        if data.strip().startswith("{"):
-            data = "[" + data + "]"
+        data = f.read().strip()
+
+    if data.startswith("{"):
+        data = "[" + data + "]"
+
+    try:
         transcript = json.loads(data)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON structure in transcript: {e}")
+
+    for i, item in enumerate(transcript):
+        if not isinstance(item, dict):
+            raise ValueError(f"Invalid entry at index {i}: must be a dict")
+        if not all(k in item for k in ("text", "starttime", "endtime")):
+            raise ValueError(f"Missing required keys at index {i}: {item}")
+
     return transcript
 
-def summarize_watched_portion(transcript, watched_until):
-    """Filters transcript up to a certain time and gets summary."""
-    watched_part = [t for t in transcript if t["endtime"] <= watched_until]
-    return process_watched_transcript(watched_part)

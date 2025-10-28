@@ -1,49 +1,49 @@
-# main_ai.py
+"""
+main_ai.py
+-----------
+Central pipeline controller for transcript-based Q&A using Gemini API.
 
-from modules.context_manager import get_transcript_chunks
+Flow:
+1. Read transcript JSON (from file or API) → read_transcript_module.py
+2. Chunk transcript text intelligently → context_manager.py
+3. Send context + user question to Gemini → gemini_pipeline.py
+4. Return final structured JSON { "answer": "...", "key_points": [...] }
+"""
+
+import json
+from read_transcript_module import load_transcript_from_txt
+from modules.context_manager import build_context
 from modules.gemini_pipeline import process_watched_transcript
 
-def main():
-    video_id = "VIDEO_ID_HERE"
 
-    # 1️⃣ Fetch transcript from DB (replace with your actual DB call)
-    # transcript_segments = fetch_transcript_from_db(video_id)
-    transcript_segments = fetch_transcript_from_db(video_id)  # should return list of dicts: [{'text':..., 'starttime':..., 'endtime':...}, ...]
+def main(transcript_path, user_question=None):
+    """
+    Orchestrates the full pipeline.
 
-    # Get how much of the video the user has watched (in seconds)
-    watched_time = 600  # example: 10 minutes watched
+    Args:
+        transcript_path (str): Path to JSON transcript file.
+        user_question (str): User's question to ask Gemini.
 
-    # 3️⃣ User question
-    user_question = "Explain the main concept covered so far."
+    Returns:
+        dict: Final structured output from Gemini.
+    """
 
-    # 4️⃣ Get transcript chunks up to watched time
-    context_chunks = get_transcript_chunks(transcript_segments, watched_time)
-    if not context_chunks:
-        print("No transcript available for the watched portion.")
-        return
+    print("[INFO] Reading transcript...")
+    transcript_data = load_transcript_from_txt(transcript_path)
 
-    context_text = "\n\n".join(context_chunks)
+    print("[INFO] Chunking transcript into sections...")
+    chunks = build_context(transcript_data)
 
-    # 5️⃣ Process everything with Gemini: answer + summary + key points + optional TTS
-    result = process_watched_transcript(
-        context_text,
-        user_question=user_question,
-        video_id=video_id,
-        tts=True  # set False if you don't want audio
-    )
+    print("[INFO] Sending to Gemini model...")
+    result = process_watched_transcript(chunks, user_question=user_question)
 
-    # 6️⃣ Print outputs
-    print("\n=== Gemini Answer ===\n")
-    print(result.get('answer', 'No answer returned'))
+    print("\n✅ Gemini Response:")
+    print(json.dumps(result, indent=4,ensure_ascii=False))
 
-    print("\n=== Summary ===\n")
-    print(result.get('summary', 'No summary returned'))
-
-    print("\n=== Key Points ===\n")
-    print(result.get('key_points', 'No key points returned'))
-
-    if 'audio_file' in result:
-        print(f"\nAudio saved at: {result['audio_file']}")
+    return result
 
 if __name__ == "__main__":
-    main()
+    transcript_path = r"D:\User\Desktop\GT\VSC2\bruteforce-eduai\EduAI-1\BruteForce_ai_part\transcript.txt"
+    question = "What is the video about? Can you explain in kannada?"
+
+    output = main(transcript_path, user_question=question)

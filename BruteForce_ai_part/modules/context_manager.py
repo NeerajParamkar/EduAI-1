@@ -1,28 +1,57 @@
-# modules/context_manager.py
+"""
+context_manager.py
+-------------------
+Takes the transcript (list of dicts) and breaks it into text chunks.
+Used before sending text to Gemini for summarization or Q&A.
+"""
 
-def get_transcript_chunks(transcript_segments, watched_time, chunk_size=50):
+import json
+
+def build_context(transcript_data, max_chars=150):
     """
-    General function to get transcript chunks from any transcript data.
+    Creates chunks of transcript text for processing (Gemini context).
 
-    transcript_segments: list of dicts with 'text', 'starttime', 'endtime'
-    watched_time: float, seconds of video watched
-    chunk_size: int, number of words per chunk
+    Args:
+        transcript_data (list): List of transcript segments — can be either:
+            - list[dict]: each dict has 'text' key (and possibly timestamps)
+            - list[str]: plain transcript lines
+        max_chars (int): Maximum number of characters per chunk.
 
     Returns:
-        list of text chunks up to watched_time
+        list[str]: List of chunk strings, each <= max_chars.
     """
-    # Filter segments within watched time
-    watched_segments = [seg['text'] for seg in transcript_segments
-                        if seg['starttime'] <= watched_time]
+    chunks = []
+    current_chunk = ""
 
-    if not watched_segments:
-        return []
+    for segment in transcript_data:
+        if isinstance(segment, dict):
+            text = str(segment.get("text", "")).strip()
+        elif isinstance(segment, str):
+            text = segment.strip()
+        else:
+            text = str(segment).strip()
 
-    # Combine all text
-    full_text = " ".join(watched_segments)
+        if not text:
+            continue 
 
-    # Split into chunks of chunk_size words
-    words = full_text.split()
-    chunks = [" ".join(words[i:i+chunk_size])
-              for i in range(0, len(words), chunk_size)]
+        if len(current_chunk) + len(text) + 1 <= max_chars:
+            current_chunk += " " + text if current_chunk else text
+        else:
+            chunks.append(current_chunk.strip())
+            current_chunk = text
+
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+
     return chunks
+
+
+if __name__ == "__main__":
+    with open("transcript.json", "r", encoding="utf-8") as f:
+        transcript_data = json.load(f)
+
+    chunks = build_context(transcript_data)
+    print(f"✅ Created {len(chunks)} chunks.")
+
+    with open("context.json", "w", encoding="utf-8") as f:
+        json.dump({"chunks": chunks}, f, indent=4)
