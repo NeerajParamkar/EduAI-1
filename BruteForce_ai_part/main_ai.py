@@ -42,9 +42,8 @@ def main(transcript_path, user_question=None):
 
     return result
 
-
 if __name__ == "__main__":
-    transcript_path = "EduAI-1/BruteForce_ai_part/transcript.txt"
+    transcript_path = r"D:\User\Desktop\GT\VSC2\bruteforce-eduai\EduAI-1\BruteForce_ai_part\transcript.txt"
     question = "What is the video about? Can you explain in kannada?"
 
     output = main(transcript_path, user_question=question)

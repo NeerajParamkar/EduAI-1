@@ -28,16 +28,3 @@ def load_transcript_from_txt(file_path: str):
 
     return transcript
 
-
-def summarize_watched_portion(file_path: str):
-    """
-    Loads the transcript JSON file (already watched portion)
-    and returns it as-is for downstream Gemini processing.
-    """
-    transcript = load_transcript_from_txt(file_path)
-    return transcript
-
-if __name__ == "__main__":
-    path = "transcript.json"
-    transcript_data = summarize_watched_portion(path)
-    print(json.dumps(transcript_data[:3], indent=2))
