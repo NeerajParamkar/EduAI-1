@@ -3,14 +3,18 @@ import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import VideoChatPage from './pages/VideoChatPage';
 import Header from './components/Header';
+import AddOn from './pages/AddOn';
+import QuizPage from './pages/Quiz';
+import Summary from './pages/Summary';
+
 
 /** Main App Component */
 const App = () => {
     const [isAuthenticated, setAuthenticated] = useState(false);
-    const [currentPage, setCurrentPage] = useState('dashboard'); // 'auth', 'dashboard', 'video_chat', 'profile'
+    const [currentPage, setCurrentPage] = useState('dashboard'); 
     const [videoUrl, setVideoUrl] = useState('');
 
-    // Initial setup: check authentication status
+    // 🔹 Check authentication on load
     useEffect(() => {
         const token = localStorage.getItem('eduai_token');
         if (!token) {
@@ -21,7 +25,7 @@ const App = () => {
         }
     }, []);
 
-    // Update flow based on authentication
+    // 🔹 Update flow based on authentication
     useEffect(() => {
         if (isAuthenticated && currentPage === 'auth') {
             setCurrentPage('dashboard');
@@ -31,9 +35,7 @@ const App = () => {
     }, [isAuthenticated, currentPage]);
 
     const handleSubmitVideo = useCallback(() => {
-        if (videoUrl) {
-            setCurrentPage('video_chat');
-        }
+        if (videoUrl) setCurrentPage('video_chat');
     }, [videoUrl]);
 
     const handleLogout = useCallback(() => {
@@ -43,17 +45,15 @@ const App = () => {
         localStorage.removeItem('eduai_token');
     }, []);
 
-    /** 🔗 Handles Profile Button Click */
     const handleProfileClick = useCallback(() => {
         setCurrentPage('profile');
     }, []);
 
-    /** 🧠 Handles "Go to Dashboard" click inside Profile */
     const handleGoToDashboard = useCallback(() => {
         setCurrentPage('dashboard');
     }, []);
 
-    /** Page rendering */
+    /** 🔻 Renders active page */
     const renderContent = () => {
         switch (currentPage) {
             case 'auth':
@@ -62,10 +62,7 @@ const App = () => {
             case 'dashboard':
                 return (
                     <>
-                        <Header
-                            handleLogout={handleLogout}
-                            onProfileClick={handleProfileClick}
-                        />
+                        <Header handleLogout={handleLogout} />
                         <Dashboard
                             videoUrl={videoUrl}
                             setVideoUrl={setVideoUrl}
@@ -77,24 +74,47 @@ const App = () => {
             case 'video_chat':
                 return (
                     <>
-                        <Header
-                            handleLogout={handleLogout}
-                            onProfileClick={handleProfileClick}
-                        />
+                        <Header handleLogout={handleLogout} />
                         <VideoChatPage
                             videoUrl={videoUrl}
                             handleLogout={() => setCurrentPage('dashboard')}
+                            handleNext={() => setCurrentPage('addon')}
                         />
+                    </>
+                );
+
+            case 'addon':
+                return (
+                    <>
+                        <Header handleLogout={handleLogout} />
+                        <AddOn
+                            onGoBack={() => setCurrentPage('video_chat')}
+                            goToQuiz={() => setCurrentPage('quiz')}
+                            goToSummary={() => setCurrentPage('summary')}
+                        />
+                    </>
+                );
+
+            case 'quiz':
+                return (
+                    <>
+                        <Header handleLogout={handleLogout} />
+                        <QuizPage onBackToAddOn={() => setCurrentPage('addon')} />
+                    </>
+                );
+
+            case 'summary':
+                return (
+                    <>
+                        <Header handleLogout={handleLogout} />
+                        <Summary onBackToAddOn={() => setCurrentPage('addon')} />
                     </>
                 );
 
             case 'profile':
                 return (
                     <>
-                        <Header
-                            handleLogout={handleLogout}
-                            onProfileClick={handleProfileClick}
-                        />
+                        <Header handleLogout={handleLogout} />
                         <ProfilePage onGoToDashboard={handleGoToDashboard} />
                     </>
                 );
