@@ -50,7 +50,7 @@ const ChatBox = ({ videoUrl }) => {
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
-
+    
     return (
         <div className={`lg:col-span-1 flex flex-col h-[60vh] lg:h-auto ${CARD_BG} p-4 rounded-2xl shadow-xl border border-slate-700`}>
             <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-3">

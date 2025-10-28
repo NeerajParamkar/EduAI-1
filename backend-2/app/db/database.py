@@ -6,3 +6,4 @@ db = client[DATABASE_NAME]
 
 users_collection = db["users"]
 transcripts_collection = db["transcripts"]
+chats_collection = db["chats"] 

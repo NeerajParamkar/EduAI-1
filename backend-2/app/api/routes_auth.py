@@ -15,11 +15,15 @@ def signup(user: SignupUser):
     if users_collection.find_one({"email": user.email}):
         raise HTTPException(status_code=400, detail="User already exists")
 
-    # ✅ Add this line here
+    # Check password length
     if len(user.password.encode('utf-8')) > 72:
         raise HTTPException(status_code=400, detail="Password too long (max 72 characters allowed)")
+    
+    # ✅ ADD: Minimum password length check
+    if len(user.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
 
-    # ✅ Check confirm password
+    # Check confirm password
     if user.password != user.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
 
@@ -32,8 +36,14 @@ def signup(user: SignupUser):
         "password": hashed_password
     })
 
-    return {"message": "User created successfully"}
-# ------------------- LOGIN -------------------
+    # ✅ OPTIONAL: Return token on signup so user is automatically logged in
+    token = create_access_token({"sub": user.email})
+    return {
+        "message": "User created successfully",
+        "access_token": token,
+        "token_type": "bearer"
+    }
+
 @router.post("/login")
 def login(user: LoginUser):
     db_user = users_collection.find_one({"email": user.email})
@@ -42,7 +52,6 @@ def login(user: LoginUser):
 
     token = create_access_token({"sub": db_user["email"]})
     return {"access_token": token, "token_type": "bearer"}
-
 # ------------------- TEST ROUTE -------------------
 @router.get("/")
 def getdata():
