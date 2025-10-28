@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Brain, LogOut } from "lucide-react";
+import { Brain, LogOut, User } from "lucide-react"; // ⬅️ Added User icon
 
-/** Header Component (Used on Dashboard and Video/Chat pages) */
 const Header = ({ handleLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Close dropdown if clicked outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -26,14 +24,14 @@ const Header = ({ handleLogout }) => {
                     Edu<span className="text-indigo-400">AI</span>
                 </div>
 
-                {/* Profile Dropdown (Logout only) */}
+                {/* Profile Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="flex items-center space-x-2 p-2 rounded-full border border-slate-700 bg-slate-700 hover:bg-slate-600 transition duration-200 text-slate-200"
                     >
-                        <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold">
-                            U
+                        <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center">
+                            <User className="w-5 h-5 text-white" />
                         </div>
                     </button>
 
