@@ -23,9 +23,5 @@ def process_watched_transcript(context_text, user_question=None, video_id=None, 
             result['audio_file'] = audio_file
 
     # 2️⃣ Summary of watched portion
-    result['summary'] = ask_gemini("Summarize the following lecture content.", context_text)
-
-    # 3️⃣ Key points
-    result['key_points'] = ask_gemini("Extract key points as bullet points from the lecture.", context_text)
-
+    
     return result
