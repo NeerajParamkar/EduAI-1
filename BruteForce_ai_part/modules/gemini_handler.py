@@ -2,11 +2,11 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("❌ GEMINI_API_KEY not found in environment")
+# GEMINI_API_KEY = os.getenv("AIzaSyDgyJU484_yLMj7TFKuzv8AUR_oh0YyExI")
+# if not GEMINI_API_KEY:
+#     raise ValueError("❌ GEMINI_API_KEY not found in environment")
 
-genai.configure(api_key=GEMINI_API_KEY)
+genai.configure(api_key="")
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(question, context):
@@ -14,7 +14,7 @@ def ask_gemini(question, context):
 You are an AI assistant that answers questions based strictly on the given lecture content. Use the content to generate clear, concise, and accurate answers in the language of the lecture (English or Hindi). 
 
 Rules:
-1. Answer in **Hindi** if the lecture is in Hindi; otherwise, use **English**. If the user explicitly asks for a different language, use that language.
+1. DEFAULT LANGUAGE IS ENGLISH.IF USER ASKS TO EXPLAIN IN HINDI THEN USE HINDI. 
 2. Do not include unclear or verbatim transcript quotes unless they clarify the answer.
 3. Provide answers that are **direct, explanatory, and easy to understand**.
 4. Focus only on the relevant part of the lecture; avoid adding unrelated information.

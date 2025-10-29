@@ -1,25 +1,40 @@
 import json
-import os
 
-def load_transcript_from_txt(file_path: str):
+def load_transcript(transcript_input):
     """
-    Reads a JSON or text-based transcript file and returns it as a list of dictionaries.
-    The file is assumed to already contain only the watched portion of the video."""
+    Loads transcript data from a JSON string or Python list and returns
+    it as a validated list of dictionaries.
 
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Transcript file not found: {file_path}")
+    The transcript is assumed to already contain only the watched portion of the video.
 
-    with open(file_path, "r", encoding="utf-8") as f:
-        data = f.read().strip()
+    Args:
+        transcript_input (str | list): Either:
+            - A JSON string (e.g., from API or frontend)
+            - A Python list of dicts (already parsed)
 
-    if data.startswith("{"):
-        data = "[" + data + "]"
+    Returns:
+        list[dict]: Transcript data with validated 'text', 'starttime', and 'endtime' fields.
+    """
 
-    try:
-        transcript = json.loads(data)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON structure in transcript: {e}")
+    # --- Handle JSON string input ---
+    if isinstance(transcript_input, str):
+        data = transcript_input.strip()
+        if data.startswith("{"):
+            data = "[" + data + "]"
 
+        try:
+            transcript = json.loads(data)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON structure in transcript: {e}")
+
+    # --- Handle already parsed list ---
+    elif isinstance(transcript_input, list):
+        transcript = transcript_input
+
+    else:
+        raise TypeError("Transcript input must be a JSON string or a Python list.")
+
+    # --- Validate structure ---
     for i, item in enumerate(transcript):
         if not isinstance(item, dict):
             raise ValueError(f"Invalid entry at index {i}: must be a dict")
@@ -27,4 +42,3 @@ def load_transcript_from_txt(file_path: str):
             raise ValueError(f"Missing required keys at index {i}: {item}")
 
     return transcript
-
