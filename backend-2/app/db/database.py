@@ -1,9 +1,10 @@
 from pymongo import MongoClient
 from app.core.config import MONGO_URI, DATABASE_NAME
+from motor.motor_asyncio import AsyncIOMotorClient
 
-client = MongoClient(MONGO_URI)
+client = AsyncIOMotorClient(MONGO_URI)
 db = client[DATABASE_NAME]
 
 users_collection = db["users"]
 transcripts_collection = db["transcripts"]
-chats_collection = db["chats"] 
+chat_collection = db["chat_history"] 

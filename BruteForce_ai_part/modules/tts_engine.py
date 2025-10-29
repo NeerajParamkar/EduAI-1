@@ -3,9 +3,12 @@ import pygame
 from elevenlabs import ElevenLabs
 from dotenv import load_dotenv
 import os
+import tempfile
+import pygame
 
 load_dotenv()
-TTS_API_KEY = os.getenv("TTS_API_KEY")
+# TTS_API_KEY = os.getenv("")
+TTS_API_KEY = ""
 if not TTS_API_KEY:
     raise ValueError("❌ TTS_API_KEY not found in environment")
 
@@ -24,15 +27,28 @@ def speak_text(text: str, voice: str):
     )
     audio_bytes = b"".join(audio_gen)
 
-    # Save to a temporary MP3 in memory
-    temp_file = "temp_tts.mp3"
-    with open(temp_file, "wb") as f:
-        f.write(audio_bytes)
+    # ✅ Use a unique temporary file to avoid locking
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
+        temp_path = temp_file.name
+        temp_file.write(audio_bytes)
 
-    # Initialize pygame mixer
-    pygame.mixer.init()
-    pygame.mixer.music.load(temp_file)
-    pygame.mixer.music.play()
+    try:
+        # Initialize pygame mixer (re-init if already active)
+        if pygame.mixer.get_init():
+            pygame.mixer.quit()
+        pygame.mixer.init()
 
-    while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(10)
+        # Load and play safely
+        pygame.mixer.music.load(temp_path)
+        pygame.mixer.music.play()
+
+        # Wait until playback finishes
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+
+    finally:
+        # ✅ Always clean up the file after playback
+        try:
+            os.remove(temp_path)
+        except Exception as e:
+            print(f"[WARN] Could not delete temp file: {e}")

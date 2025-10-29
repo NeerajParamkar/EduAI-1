@@ -1,5 +1,8 @@
-from tts_engine import speak_text
+from modules.tts_engine import speak_text  # ✅ Correct path
 
-ai_answer = "शर्म नहीं आती अरे हमारे घर पे तो पैसे"
-
-speak_text(ai_answer, voice="nPczCjzI2devNBz1zQrb")
+def getairesponce(ans: str):
+    """Speak the AI response."""
+    try:
+        speak_text(ans, voice="nPczCjzI2devNBz1zQrb")
+    except Exception as e:
+        print(f"[ERROR] Failed to speak text: {e}")

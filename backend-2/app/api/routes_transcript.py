@@ -8,12 +8,16 @@ from youtube_transcript_api._errors import NoTranscriptFound
 import json
 from urllib.parse import urlparse, parse_qs
 from fastapi.responses import JSONResponse
+from app.db.database import chat_collection
+from datetime import datetime
+import time
+import asyncio
 import sys
 import os
 
-        # Add the parent directory to sys.path so Python can find ai
 sys.path.append(r'D:\bfeduai\BruteForce_ai_part')
 import main_ai
+import modules.tts_handler
 router = APIRouter(prefix="/transcript", tags=["Transcript"])
 
 class VideoRequest(BaseModel):
@@ -1602,21 +1606,86 @@ def process_url(data: UrlData):
     # get_transcript_by_time_range(ytid,0,30)
     return {"message": f"URL received successfully: {received_url}"}    
 
+# @router.post("/ask-ai")
+# async def ask_ai(request: ChatRequest):
+#     """
+#     Handles user questions about a YouTube video transcript.
+#     """
+#     try:
+#         # # 2️⃣ Convert to Python list (if it’s JSON string)
+#         transcript_data = getytscript(request.video_id)  # already a list/dict
+#         print(transcript_data)
+#         # # 3️⃣ Call your AI logic
+#         output = main_ai.main(tc, user_question=request.question)
+#         # print("ans",output.answer)
+#         # 4️⃣ Return formatted result
+#         # chat_doc = {
+#         #     "video_id": request.video_id,
+#         #     "question": request.question,
+#         #     "answer": output,
+#         #     "created_at": datetime.utcnow()
+#         # }
+#         # await database_collection.insert_one(chat_doc)
+    
+#         return {"answer": output}
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/ask-ai")
 async def ask_ai(request: ChatRequest):
-    """
-    Handles user questions about a YouTube video transcript.
-    """
     try:
-        # # 2️⃣ Convert to Python list (if it’s JSON string)
-        transcript_data = getytscript(request.video_id)  # already a list/dict
-        print(transcript_data)
-        # # 3️⃣ Call your AI logic
         output = main_ai.main(tc, user_question=request.question)
-        print(output)
-        # 4️⃣ Return formatted result
+        output = output.get("answer") if isinstance(output, dict) else str(output)
+        # modules.tts_handler.getairesponce(output)
+        chat_entry = {
+            "question": request.question,
+            "answer": output,
+            "created_at": datetime.utcnow()
+        }
+
+        # ✅ Blocking synchronous call
+        database_collection.update_one(
+            {"video_id": request.video_id},
+            {"$push": {"chats": chat_entry}},
+            upsert=True
+        )
+
+        # 🕒 Small wait to ensure DB write completes
+        time.sleep(0.5)
 
         return {"answer": output}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/chat-history/{video_id}")
+async def get_last_chat_entry(video_id: str):
+    """
+    Returns the most recent question-answer pair for a given video ID.
+    """
+    try:
+        doc = await database_collection.find_one(
+            {"video_id": video_id},
+            {"_id": 0, "chats": 1}
+        )
+        await asyncio.sleep(0.5)
+        # print(doc)
+
+        if not doc or not doc.get("chats"):
+            raise HTTPException(status_code=404, detail="No chat history found for this video")
+
+        last_chat = doc["chats"][-1]
+        await asyncio.sleep(0.5)
+        print(last_chat.get("answer"))
+
+        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJ",last_chat["answer"])
+        await modules.tts_handler.getairesponce(last_chat["answer"])  # ✅ await if async
+        await asyncio.sleep(1)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching last chat: {str(e)}")

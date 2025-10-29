@@ -31,6 +31,21 @@ const ChatBox = ({ videoUrl }) => {
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+const handleFetchHistory = async () => {
+  try {
+    const res = await fetch(`http://localhost:8000/transcript/chat-history/${embedId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+
+    
+
+    // Since backend returns a single object, not an array:
+
+    // setMessages((prev) => [...prev, aiMsg]);
+  } catch (err) {
+    console.error("❌ Error fetching history:", err);
+  }
+};
+
 
   // 🧠 Handle sending a message
 const handleSendMessage = async () => {
@@ -150,6 +165,14 @@ const handleSendMessage = async () => {
           }`}
         >
           <p className="text-sm whitespace-pre-line">{displayText}</p>
+          {msg.role !== "user" && (
+          <button
+            onClick={handleFetchHistory}
+            className="mt-2 px-3 py-1 bg-slate-600 text-white text-xs rounded-lg hover:bg-slate-500"
+          >
+            speak
+          </button>
+        )}
         </div>
       </div>
     );
